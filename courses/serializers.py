@@ -20,13 +20,7 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'subtitle', 'description', 'video_url', 'price', 'image_url', 'author', 'author_id']
 
     def create(self, validated_data):
-        author_id = validated_data.pop('author_id')
         course = Course(**validated_data)
-
-        # relate author
-        author = User.objects.get(pk=author_id)
-
-        course.author = author
         course.save()
 
         return course
