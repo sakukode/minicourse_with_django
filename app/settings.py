@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # third parties
     'rest_framework',
     'django_filters',
+    'rest_framework_simplejwt',
     #modules
     'users.apps.UsersConfig',
     'courses.apps.CoursesConfig',
@@ -131,5 +132,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTTokenUserAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
