@@ -18,12 +18,14 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt import views as jwt_views
 
-from courses.api.views import CourseViewSet
 from users.api.views import UserViewSet
+from courses.api.views import CourseViewSet
+from curriculums.api.views import CurriculumViewSet
 
 router = routers.DefaultRouter()
 router.register('courses', CourseViewSet)
 router.register('users', UserViewSet)
+router.register('curriculums', CurriculumViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),

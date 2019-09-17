@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     #modules
     'users.apps.UsersConfig',
     'courses.apps.CoursesConfig',
+    'curriculums.apps.CurriculumsConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
