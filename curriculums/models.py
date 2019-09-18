@@ -11,7 +11,7 @@ class Curriculum(models.Model):
     file_type = models.CharField(max_length=50)
 
     # relationships fields
-    course = models.ForeignKey(
-        'courses.Course', on_delete=models.CASCADE
-    )
+    course = models.ForeignKey('courses.Course', related_name='curriculums', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
