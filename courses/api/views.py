@@ -8,18 +8,53 @@ from ..serializers import CourseSerializer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['title', 'price']
-    search_fields = ['title', 'subtitle', 'price']
+    search_fields = ['id', 'title', 'subtitle', 'price']
+    ordering_fields = ['id','title', 'subtitle', 'price']
+    ordering = ['id']
+
+    def get_displayed_fields(self, pk=None):
+        fields_string = self.request.query_params.get('fields')
+        if fields_string is None:
+            if pk is None:
+                fields = self.search_fields
+            else:
+                fields = None
+        else:
+            fields_string = fields_string[1:-1]
+            fields_list = fields_string.split(',')
+            fields = tuple(fields_list)
+
+        return fields
+
+    def get_field_order(self):
+        order_field = self.request.query_params.get('ordering')
+        field = order_field.replace("-", "")
+        order_field = order_field if (field in self.ordering_fields) else self.ordering[0]
+
+        return order_field
 
     def list(self, request, **kwargs):
-        queryset = Course.objects.all()
+        fields = self.get_displayed_fields()
+        queryset = self.queryset
+        order_field = self.get_field_order()
+
+        queryset = queryset.order_by(order_field)
         page = self.paginate_queryset(queryset)
-        serializer = CourseSerializer(page, many=True, fields=('id','title', 'subtitle', 'price', 'video_url', 'author'))
+        serializer = self.serializer_class(page, many=True, fields=fields)
+
         return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        fields = self.get_displayed_fields(pk=pk)
+        data = self.get_object()
+        serializer = self.serializer_class(data, fields=fields)
+
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
