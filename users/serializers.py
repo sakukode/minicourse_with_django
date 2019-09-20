@@ -1,6 +1,8 @@
 from django.contrib.auth.models import Group, User
 from rest_framework import serializers
 
+from helpers.types import USER_GROUP_TYPES
+
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,16 +16,16 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(required=True, write_only=True)
     groups = GroupSerializer(many=True, read_only=True)
 
-    #for member
-    is_author = serializers.BooleanField(default=False, write_only=True)
+    #for group field by name
+    group_name = serializers.CharField(write_only=True, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'groups', 'password', 'is_author']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'groups', 'password', 'group_name']
         read_only_fields = ['username', 'date_joined']
 
     def create(self, validated_data):
-        is_author = validated_data.pop('is_author')
+        group_name = validated_data.pop('group_name', None)
 
         user = User.objects.create_user(
             email=validated_data.get('email'),
@@ -33,8 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data.get('password'),
         )
 
-        if is_author is True:
-            author_group = Group.objects.get(name="author")
+        # set related group, if group not empty and in list USER_GROUP_TYPES variable constanst
+        if group_name in USER_GROUP_TYPES.keys():
+            author_group = Group.objects.get(name=USER_GROUP_TYPES[group_name])
 
             if author_group:
                 author_group.user_set.add(user)

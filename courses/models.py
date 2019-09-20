@@ -18,7 +18,8 @@ class Course(models.Model):
     price = models.FloatField(default=0)
 
     # relationship fields
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="author")
+    students = models.ManyToManyField(User, related_name="students")
 
     def __str__(self):
         return self.title

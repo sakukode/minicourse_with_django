@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from components.serializers import DynamicFieldsModelSerializer
+from helpers.serializers import DynamicFieldsModelSerializer
 from curriculums.models import Curriculum
 from .models import Course
 

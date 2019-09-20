@@ -13,7 +13,7 @@ from users.serializers import UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
