@@ -33,3 +33,11 @@ class CourseSerializer(DynamicFieldsModelSerializer):
         course.save()
 
         return course
+
+    def join(id, user):
+        course = Course.objects.filter(id=id)
+
+        if(course):
+            course.students.add(user)
+
+        return course
