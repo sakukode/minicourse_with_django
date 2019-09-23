@@ -5,10 +5,20 @@ class Curriculum(models.Model):
     class Meta:
         db_table = "curriculums"
 
+    AUDIO = 'audio'
+    TEXT = 'text'
+    VIDEO = 'video'
+
+    FILE_TYPE_CHOICES = [
+        (AUDIO, 'Audio'),
+        (TEXT, 'Text'),
+        (VIDEO, 'Video'),
+    ]
+
     # main fields
     title = models.CharField(max_length=100)
     attachment_url = models.CharField(max_length=100)
-    file_type = models.CharField(max_length=50)
+    file_type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES)
 
     # relationships fields
     course = models.ForeignKey('courses.Course', related_name='curriculums', on_delete=models.CASCADE)
