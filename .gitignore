@@ -103,3 +103,9 @@ venv.bak/
 # mypy
 .mypy_cache/
 .idea/
+
+# ignore django migrations
+courses/migrations/*.py
+!courses/migrations/__init__.py
+curriculums/migrations/*.py
+!curriculums/migrations/__init__.py
