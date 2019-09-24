@@ -2,14 +2,14 @@ from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.response import Response
-# from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import IsAuthenticated
 
 from ..models import Course
 from ..serializers import CourseSerializer
-from courses.api.permissions import IsOwnerOrReadOnly
+from courses.api.permissions import CoursePermission
 
 class CourseViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [CoursePermission]
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -17,6 +17,23 @@ class CourseViewSet(viewsets.ModelViewSet):
     search_fields = ['id', 'title', 'subtitle', 'price']
     ordering_fields = ['id', 'title', 'subtitle', 'price']
     ordering = ['id']
+
+    # def get_queryset(self):
+    #     """
+    #     This view should return a list of all
+    #     for the currently authenticated user.
+    #     """
+    #     page = self.request.query_params.get('page')
+    #
+    #     if page:
+    #         if page == 'my_course':
+    #             user = self.request.user
+    #             return Course.objects.filter(author=user)
+    #         elif page == 'my_class':
+    #             user = self.request.user
+    #             return Course.objects.filter(members__id = user.id)
+    #
+    #     return super().queryset
 
     def get_displayed_fields(self, pk=None):
         fields_string = self.request.query_params.get('fields')
@@ -67,21 +84,46 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer.save(author=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['put'])
-    def join(self, request, pk=None):
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def join(self, request, pk=None, *args, **kwargs):
         """ action to join class """
         course = self.get_object()
         user = request.user
-        student = course.students.all().filter(id=user.id).first()
         serializer = self.serializer_class(course)
+        res = Course.objects.join(course.id, user)
 
-        if student:
-            return Response({'status': False,
-                            'message': 'You have joined Course, Please check your dashboard',
-                            'data': serializer.data},
-                            status=status.HTTP_200_OK)
+        if res:
+            return Response({'status': True,
+                             'message': 'Success Join Course',
+                             'data': serializer.data}, status=status.HTTP_200_OK)
         else:
-            course.students.add(user)
             return Response({'status': False,
-                            'message': 'Success Join Course',
-                            'data': serializer.data}, status=status.HTTP_200_OK)
+                             'message': 'You have joined Course, Please check your dashboard',
+                             'data': serializer.data},
+                            status=status.HTTP_200_OK)
+
+    @action(detail=False)
+    def me(self, request, **kwargs):
+        fields = self.get_displayed_fields()
+        queryset = super().get_queryset().filter(author=request.user)
+        order_field = self.get_field_order()
+
+        queryset = queryset.order_by(order_field)
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True, fields=fields)
+
+        return self.get_paginated_response(serializer.data)
+
+    @action(detail=False)
+    def my_class(self, request, **kwargs):
+        fields = self.get_displayed_fields()
+        user = request.user
+        queryset = super().get_queryset().filter(members__id=user.id)
+        order_field = self.get_field_order()
+
+        queryset = queryset.order_by(order_field)
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True, fields=fields)
+
+        return self.get_paginated_response(serializer.data)
+

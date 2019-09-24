@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -49,4 +51,4 @@ class Membership(models.Model):
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date_joined = models.DateField()
+    date_joined = models.DateField(auto_now_add=True, blank=True)
