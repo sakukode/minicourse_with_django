@@ -109,3 +109,6 @@ courses/migrations/*.py
 !courses/migrations/__init__.py
 curriculums/migrations/*.py
 !curriculums/migrations/__init__.py
+
+# ignore .env
+.env

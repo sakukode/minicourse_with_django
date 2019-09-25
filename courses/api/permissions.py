@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-class CoursePermission(permissions.DjangoModelPermissions):
+class CoursePermission(permissions.DjangoModelPermissionsOrAnonReadOnly):
     """
     Object-level permission to only allow owners of an object to edit it
     """
@@ -11,10 +11,7 @@ class CoursePermission(permissions.DjangoModelPermissions):
         so we'll always allow GET, HEAD or OPTIONS requests
         """
         if request.method in permissions.SAFE_METHODS:
-            if request.user:
-                return True
-            else:
-                return False
+            return True
 
         # Instance must have an attribute named 'owner
         return obj.author == request.user

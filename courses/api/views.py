@@ -7,39 +7,22 @@ from rest_framework.permissions import IsAuthenticated
 from ..models import Course
 from ..serializers import CourseSerializer
 from courses.api.permissions import CoursePermission
+from courses.api.filters import CourseFilter
 
 class CourseViewSet(viewsets.ModelViewSet):
     permission_classes = [CoursePermission]
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['title', 'price']
-    search_fields = ['id', 'title', 'subtitle', 'price']
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = CourseFilter
     ordering_fields = ['id', 'title', 'subtitle', 'price']
     ordering = ['id']
-
-    # def get_queryset(self):
-    #     """
-    #     This view should return a list of all
-    #     for the currently authenticated user.
-    #     """
-    #     page = self.request.query_params.get('page')
-    #
-    #     if page:
-    #         if page == 'my_course':
-    #             user = self.request.user
-    #             return Course.objects.filter(author=user)
-    #         elif page == 'my_class':
-    #             user = self.request.user
-    #             return Course.objects.filter(members__id = user.id)
-    #
-    #     return super().queryset
 
     def get_displayed_fields(self, pk=None):
         fields_string = self.request.query_params.get('fields')
         if fields_string is None:
             if pk is None:
-                fields = self.search_fields
+                fields = self.ordering_fields
             else:
                 fields = None
         else:
@@ -62,10 +45,11 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def list(self, request, **kwargs):
         fields = self.get_displayed_fields()
-        queryset = self.queryset
+        queryset = super().get_queryset()
         order_field = self.get_field_order()
 
-        queryset = queryset.order_by(order_field)
+        # queryset = queryset.order_by(order_field)
+        queryset = self.filter_queryset(queryset)
         page = self.paginate_queryset(queryset)
         serializer = self.serializer_class(page, many=True, fields=fields)
 
