@@ -31,8 +31,10 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # third parties
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
     'rest_framework_simplejwt',
+    'djoser',
     # modules
     'users.apps.UsersConfig',
     'courses.apps.CoursesConfig',
@@ -137,6 +139,14 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+}
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': True,
+    'SERIALIZERS': {},
 }
 
 MAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

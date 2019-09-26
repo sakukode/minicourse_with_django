@@ -28,11 +28,10 @@ router.register('users', UserViewSet)
 router.register('curriculums', CurriculumViewSet)
 
 urlpatterns = [
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
     path('api/', include(router.urls)),
     path('courses/', include('courses.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/password/forgot', ForgotPasswordViewSet.as_view()),
 ]
