@@ -37,6 +37,10 @@ class Course(models.Model):
     image_url = models.CharField(max_length=100, null=True, blank=True)
     price = models.FloatField(default=0)
 
+    # timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     # relationship fields
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="author")
     members = models.ManyToManyField(User, through="Membership")

@@ -20,6 +20,10 @@ class Curriculum(models.Model):
     attachment_url = models.CharField(max_length=100)
     file_type = models.CharField(max_length=50, choices=FILE_TYPE_CHOICES)
 
+    # timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     # relationships fields
     course = models.ForeignKey('courses.Course', related_name='curriculums', on_delete=models.CASCADE)
 
